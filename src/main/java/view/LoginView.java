@@ -1,11 +1,17 @@
 package view;
 
+import controller.AuthController;
+import model.VO.Fornecedor;
+import model.VO.Hospital;
+import model.VO.Usuario;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LoginView extends JFrame {
+    private final AuthController authController = new AuthController();
     private JTextField txtEmail;
     private JPasswordField txtSenha;
     private JButton btnLogin;
@@ -125,7 +131,22 @@ public class LoginView extends JFrame {
     }
 
     private void realizarLogin(){
-        // Chamar controller futuramente
+        String email = txtEmail.getText().trim();
+        String senha = new String(txtSenha.getPassword());
+        try {
+            Usuario usuario = authController.login(email, senha);
+            JOptionPane.showMessageDialog(this, "Login realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            if (usuario instanceof Hospital) {
+                HospitalMainView view = new HospitalMainView((Hospital) usuario);
+                view.setVisible(true);
+            } else if (usuario instanceof Fornecedor) {
+                FornecedorMainView view = new FornecedorMainView((Fornecedor) usuario);
+                view.setVisible(true);
+            }
+            dispose();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Erro de Login", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void abrirCadastroHospital() {
@@ -141,7 +162,6 @@ public class LoginView extends JFrame {
     private void configureWindow() {
         setTitle("E-Licit - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
         setMinimumSize(new Dimension(500, 350));
         setResizable(false);
         pack();

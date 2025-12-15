@@ -1,5 +1,6 @@
 package view;
 
+import controller.SessionManager;
 import model.VO.Hospital;
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +15,12 @@ public class HospitalMainView extends JFrame {
 
     public HospitalMainView(Hospital hospital) {
         this.hospital = hospital;
+        if (!SessionManager.isHospital()) {
+            JOptionPane.showMessageDialog(this, "Faça login como hospital.", "Sessão requerida", JOptionPane.WARNING_MESSAGE);
+            new LoginView().setVisible(true);
+            dispose();
+            return;
+        }
         initializeComponents();
         setupMenu();
         configureWindow();
@@ -74,10 +81,8 @@ public class HospitalMainView extends JFrame {
     }
 
     private void abrirPropostasPorCotacao() {
-        JOptionPane.showMessageDialog(this,
-                "Funcionalidade de visualizar propostas por cotação em desenvolvimento.",
-                "Em Desenvolvimento",
-                JOptionPane.INFORMATION_MESSAGE);
+        CotacaoListView view = new CotacaoListView(hospital);
+        view.setVisible(true);
     }
 
     private void mostrarPerfil() {
@@ -92,6 +97,7 @@ public class HospitalMainView extends JFrame {
 
     private void logout() {
         dispose();
+        SessionManager.encerrarSessao();
         LoginView loginView = new LoginView();
         loginView.setVisible(true);
     }

@@ -1,5 +1,6 @@
 package view;
 
+import controller.SessionManager;
 import model.VO.Fornecedor;
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +15,12 @@ public class FornecedorMainView extends JFrame {
 
     public FornecedorMainView(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
+        if (!SessionManager.isFornecedor()) {
+            JOptionPane.showMessageDialog(this, "Faça login como fornecedor.", "Sessão requerida", JOptionPane.WARNING_MESSAGE);
+            new LoginView().setVisible(true);
+            dispose();
+            return;
+        }
         initializeComponents();
         setupMenu();
         configureWindow();
@@ -74,10 +81,8 @@ public class FornecedorMainView extends JFrame {
     }
 
     private void abrirMinhasPropostas() {
-        JOptionPane.showMessageDialog(this,
-                "Funcionalidade de visualizar propostas do fornecedor em desenvolvimento.",
-                "Em Desenvolvimento",
-                JOptionPane.INFORMATION_MESSAGE);
+        PropostaListView view = new PropostaListView(fornecedor);
+        view.setVisible(true);
     }
 
     private void mostrarPerfil() {
@@ -92,6 +97,7 @@ public class FornecedorMainView extends JFrame {
 
     private void logout() {
         dispose();
+        SessionManager.encerrarSessao();
         LoginView loginView = new LoginView();
         loginView.setVisible(true);
     }

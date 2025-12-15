@@ -1,10 +1,13 @@
 package view;
 
+import controller.AuthController;
 import model.VO.Hospital;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class CadastroHospitalView extends JFrame {
+    private final AuthController authController = new AuthController();
     private JTextField txtNome;
     private JTextField txtEmail;
     private JPasswordField txtSenha;
@@ -108,6 +111,26 @@ public class CadastroHospitalView extends JFrame {
     }
 
     private void salvarHospital(){
+        String nome = txtNome.getText().trim();
+        String email = txtEmail.getText().trim();
+        String senha = new String(txtSenha.getPassword());
+        String cnpj = txtCnpj.getText().trim();
+        String endereco = txtEndereco.getText().trim();
+
+        Hospital hospital = new Hospital();
+        hospital.setNome(nome);
+        hospital.setEmail(email);
+        hospital.setSenha(senha);
+        hospital.setCnpj(cnpj);
+        hospital.setEndereco(endereco);
+
+        try {
+            authController.registrarHospital(hospital);
+            JOptionPane.showMessageDialog(this, "Hospital cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void configureWindow() {

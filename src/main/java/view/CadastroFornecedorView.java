@@ -1,10 +1,13 @@
 package view;
 
+import controller.AuthController;
 import model.VO.Fornecedor;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class CadastroFornecedorView extends JFrame {
+    private final AuthController authController = new AuthController();
     private JTextField txtNome;
     private JTextField txtEmail;
     private JPasswordField txtSenha;
@@ -113,6 +116,26 @@ public class CadastroFornecedorView extends JFrame {
     }
 
     private void salvarFornecedor(){
+        String nome = txtNome.getText().trim();
+        String email = txtEmail.getText().trim();
+        String senha = new String(txtSenha.getPassword());
+        String cnpj = txtCnpj.getText().trim();
+        String catalogo = txtCatalogo.getText().trim();
+
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor.setNome(nome);
+        fornecedor.setEmail(email);
+        fornecedor.setSenha(senha);
+        fornecedor.setCnpj(cnpj);
+        fornecedor.setCatalogoProdutos(catalogo);
+
+        try {
+            authController.registrarFornecedor(fornecedor);
+            JOptionPane.showMessageDialog(this, "Fornecedor cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void configureWindow() {

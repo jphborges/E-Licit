@@ -1,10 +1,13 @@
 package view;
 
+import controller.PropostaController;
 import model.VO.Proposta;
 import model.VO.Cotacao;
 import model.VO.Fornecedor;
+
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class PropostaFormView extends JFrame {
@@ -13,6 +16,7 @@ public class PropostaFormView extends JFrame {
     private Fornecedor fornecedor;
     private Cotacao cotacao;
     private Proposta proposta;
+    private final PropostaController propostaController = new PropostaController();
     private JFormattedTextField txtValorTotal;
     private JTextArea txtCondicoesPagamento;
     private JTextField txtValidade;
@@ -117,6 +121,28 @@ public class PropostaFormView extends JFrame {
     }
 
     private void salvarProposta(){
+        try {
+            double valor = ((Number) txtValorTotal.getValue()).doubleValue();
+            String condicoes = txtCondicoesPagamento.getText().trim();
+            String validadeStr = txtValidade.getText().trim();
+            LocalDate validade = validadeStr.isEmpty() ? null : LocalDate.parse(validadeStr, DATE_FORMATTER);
+
+            Proposta nova = new Proposta(
+                    0,
+                    valor,
+                    condicoes,
+                    validade,
+                    Proposta.STATUS_ENVIADA,
+                    cotacao.getId(),
+                    fornecedor.getId()
+            );
+
+            propostaController.enviarProposta(cotacao, nova, fornecedor.getId());
+            JOptionPane.showMessageDialog(this, "Proposta enviada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void configureWindow() {

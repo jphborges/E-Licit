@@ -1,8 +1,11 @@
 package view;
 
 
+import controller.CotacaoController;
+import controller.SessionManager;
 import model.VO.Cotacao;
 import model.VO.Hospital;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -13,6 +16,7 @@ public class CotacaoFormView extends JFrame {
 
     private Hospital hospital;
     private Cotacao cotacao;
+    private final CotacaoController cotacaoController = new CotacaoController();
     private JTextArea txtDescricao;
     private JTextField txtDataAbertura;
     private JTextField txtDataFechamento;
@@ -23,6 +27,12 @@ public class CotacaoFormView extends JFrame {
     public CotacaoFormView(Hospital hospital, Cotacao cotacao) {
         this.hospital = hospital;
         this.cotacao = cotacao;
+        if (!SessionManager.isHospital()) {
+            JOptionPane.showMessageDialog(this, "Faça login como hospital.", "Sessão requerida", JOptionPane.WARNING_MESSAGE);
+            new LoginView().setVisible(true);
+            dispose();
+            return;
+        }
         initializeComponents();
         setupLayout();
         setupEvents();
@@ -134,6 +144,30 @@ public class CotacaoFormView extends JFrame {
     }
 
     private void salvarCotacao(){
+        String descricao = txtDescricao.getText().trim();
+        String dataAberturaStr = txtDataAbertura.getText().trim();
+        String dataFechamentoStr = txtDataFechamento.getText().trim();
+        String status = (String) cmbStatus.getSelectedItem();
+
+        try {
+            LocalDateTime dataAbertura = dataAberturaStr.isEmpty() ? LocalDateTime.now() : LocalDateTime.parse(dataAberturaStr, DATE_TIME_FORMATTER);
+            LocalDateTime dataFechamento = dataFechamentoStr.isEmpty() ? null : LocalDateTime.parse(dataFechamentoStr, DATE_TIME_FORMATTER);
+
+            if (cotacao == null) {
+                cotacao = new Cotacao(0, descricao, dataAbertura, dataFechamento, status, hospital.getId());
+            } else {
+                cotacao.setDescricao(descricao);
+                cotacao.setDataAbertura(dataAbertura);
+                cotacao.setDataFechamento(dataFechamento);
+                cotacao.setStatus(status);
+            }
+
+            cotacaoController.salvar(cotacao);
+            JOptionPane.showMessageDialog(this, "Cotação salva com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void configureWindow() {
